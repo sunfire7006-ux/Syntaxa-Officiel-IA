@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Syntaxa AI Pro - Assistant Intelligent Complet</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --accent-primary: #3b82f6;
+            --accent-hover: #2563eb;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-tertiary: #94a3b8;
+            --border-color: #334155;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.collapsed {
+            width: 0;
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .new-chat-btn {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .new-chat-btn:hover {
+            background: var(--accent-hover);
+        }
+
+        .conversations-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.5rem;
+        }
+
+        .conversation-item {
+            padding: 0.75rem;
+            margin-bottom: 0.25rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .conversation-item:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .conversation-item.active {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .sidebar-footer {
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .api-config {
+            padding: 0.75rem;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            font-size: 0.875rem;
+        }
+
+        .api-input {
+            width: 100%;
+            padding: 0.5rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Main Chat Area */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .chat-header {
+            padding: 1rem 1.5rem;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .toggle-sidebar {
+            padding: 0.5rem;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .toggle-sidebar:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .model-selector {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .model-select {
+            padding: 0.5rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        .message {
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1.2rem;
+        }
+
+        .user-avatar {
+            background: var(--accent-primary);
+        }
+
+        .ai-avatar {
+            background: var(--success);
+        }
+
+        .message-content {
+            flex: 1;
+            max-width: 800px;
+        }
+
+        .message-text {
+            line-height: 1.6;
+            color: var(--text-primary);
+        }
+
+        .message-text h1, .message-text h2, .message-text h3 {
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .message-text p {
+            margin-bottom: 0.75rem;
+        }
+
+        .message-text ul, .message-text ol {
+            margin-left: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .message-text code {
+            background: var(--bg-tertiary);
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.875rem;
+            color: var(--accent-primary);
+        }
+
+        .code-block {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+
+        .code-header {
+            padding: 0.5rem 1rem;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .code-language {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+        }
+
+        .copy-btn {
+            padding: 0.25rem 0.75rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+        }
+
+        .code-block pre {
+            padding: 1rem;
+            overflow-x: auto;
+            margin: 0;
+        }
+
+        .code-block code {
+            background: transparent;
+            padding: 0;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+        }
+
+        .message-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .action-btn {
+            padding: 0.25rem 0.5rem;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        /* Thinking Animation */
+        .thinking {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+        }
+
+        .thinking-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            animation: thinking 1.4s ease-in-out infinite;
+        }
+
+        .thinking-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .thinking-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes thinking {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+            30% { transform: translateY(-10px); opacity: 1; }
+        }
+
+        /* Input Area */
+        .input-area {
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .input-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .input-features {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .feature-btn {
+            padding: 0.5rem 0.75rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .feature-btn:hover {
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+        }
+
+        .feature-btn.active {
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+        }
+
+        .feature-btn input[type="file"] {
+            display: none;
+        }
+
+        .input-container {
+            position: relative;
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-end;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: inherit;
+            resize: none;
+            min-height: 52px;
+            max-height: 200px;
+            transition: all 0.2s;
+        }
+
+        .message-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        .send-btn {
+            padding: 0.875rem 1.5rem;
+            background: var(--accent-primary);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            background: var(--accent-hover);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* File Preview */
+        .file-preview {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .file-item {
+            padding: 0.5rem 0.75rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .file-remove {
+            background: none;
+            border: none;
+            color: var(--error);
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .image-preview {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            margin-top: 0.5rem;
+        }
+
+        /* Welcome Screen */
+        .welcome {
+            text-align: center;
+            padding: 4rem 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .welcome h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--accent-primary), var(--success));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .welcome p {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .capabilities {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .capability-card {
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+
+        .capability-card:hover {
+            background: var(--bg-tertiary);
+            transform: translateY(-2px);
+        }
+
+        .capability-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .capability-card h3 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .capability-card p {
+            font-size: 0.875rem;
+            color: var(--text-tertiary);
+        }
+
+        /* Suggestions */
+        .suggestions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .suggestion-card {
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .suggestion-card:hover {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+        }
+
+        .suggestion-card h4 {
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .suggestion-card p {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+        }
+
+        .suggestion-card:hover p {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Error Messages */
+        .error-message {
+            padding: 1rem;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--error);
+            border-radius: 8px;
+            color: var(--error);
+            margin: 1rem 0;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--border-color);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: absolute;
+                z-index: 1000;
+                height: 100%;
+            }
+
+            .sidebar.collapsed {
+                width: 0;
+            }
+
+            .capabilities, .suggestions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <button class="new-chat-btn" onclick="newChat()">
+                    <span>➕</span>
+                    <span>Nouvelle conversation</span>
+                </button>
+            </div>
+
+            <div class="conversations-list" id="conversations-list">
+                <!-- Les conversations seront ajoutées ici -->
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="api-config">
+                    <div style="font-size: 0.75rem; color: var(--text-tertiary); margin-bottom: 0.5rem;">
+                        🔑 Clé API OpenAI
+                    </div>
+                    <input 
+                        type="password" 
+                        class="api-input" 
+                        id="api-key"
+                        placeholder="sk-..."
+                        onchange="saveApiKey()"
+                    >
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="chat-header">
+                <button class="toggle-sidebar" onclick="toggleSidebar()">
+                    ☰
+                </button>
+
+                <div class="model-selector">
+                    <select class="model-select" id="model-select">
+                        <option value="gpt-4o">GPT-4o (Recommandé)</option>
+                        <option value="gpt-4o-mini">GPT-4o Mini (Rapide)</option>
+                        <option value="gpt-3.5-turbo">GPT-3.5 Turbo (Économique)</option>
+                        <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="messages-container" id="messages">
+                <div class="welcome">
+                    <h1>👋 Bonjour ! Je suis Syntaxa AI Pro</h1>
+                    <p>Votre assistant IA complet avec toutes les fonctionnalités modernes</p>
+
+                    <div class="capabilities">
+                        <div class="capability-card">
+                            <div class="capability-icon">💬</div>
+                            <h3>Conversation Intelligente</h3>
+                            <p>Discutez naturellement de n'importe quel sujet</p>
+                        </div>
+                        <div class="capability-card">
+                            <div class="capability-icon">📷</div>
+                            <h3>Vision & Images</h3>
+                            <p>Analysez et comprenez vos images</p>
+                        </div>
+                        <div class="capability-card">
+                            <div class="capability-icon">📄</div>
+                            <h3>Documents</h3>
+                            <p>Uploadez et analysez vos fichiers</p>
+                        </div>
+                        <div class="capability-card">
+                            <div class="capability-icon">💻</div>
+                            <h3>Code & Debug</h3>
+                            <p>Générez, optimisez et débuguez du code</p>
+                        </div>
+                    </div>
+
+                    <div class="suggestions">
+                        <div class="suggestion-card" onclick="setSuggestion('Explique-moi comment fonctionne le machine learning de manière simple')">
+                            <h4>💡 Expliquer un concept</h4>
+                            <p>Machine learning simplifié</p>
+                        </div>
+                        <div class="suggestion-card" onclick="setSuggestion('Crée-moi un script Python pour organiser mes fichiers par type')">
+                            <h4>💻 Générer du code</h4>
+                            <p>Script d'organisation de fichiers</p>
+                        </div>
+                        <div class="suggestion-card" onclick="setSuggestion('Aide-moi à créer un plan d\\'entraînement sportif personnalisé')">
+                            <h4>🎯 Planification</h4>
+                            <p>Programme sportif sur mesure</p>
+                        </div>
+                        <div class="suggestion-card" onclick="setSuggestion('Rédige un email professionnel pour proposer une collaboration')">
+                            <h4>✍️ Rédaction</h4>
+                            <p>Email professionnel</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-area">
+                <div class="input-wrapper">
+                    <div class="input-features">
+                        <label class="feature-btn" id="image-upload-btn" title="Ajouter une image">
+                            📷 Image
+                            <input type="file" accept="image/*" onchange="handleImageUpload(event)" multiple>
+                        </label>
+                        <label class="feature-btn" id="file-upload-btn" title="Ajouter un fichier">
+                            📄 Fichier
+                            <input type="file" accept=".txt,.pdf,.doc,.docx,.md,.json,.csv" onchange="handleFileUpload(event)">
+                        </label>
+                    </div>
+
+                    <div class="file-preview" id="file-preview"></div>
+
+                    <div class="input-container">
+                        <textarea 
+                            class="message-input" 
+                            id="message-input"
+                            placeholder="Message Syntaxa AI Pro..."
+                            onkeydown="handleKeyPress(event)"
+                            oninput="autoResize(this)"
+                        ></textarea>
+                        <button class="send-btn" id="send-btn" onclick="sendMessage()">
+                            <span>➤</span>
+                            <span>Envoyer</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        let apiKey = localStorage.getItem('syntaxa_api_key') || '';
+        let conversations = JSON.parse(localStorage.getItem('syntaxa_conversations') || '[]');
+        let currentConversationId = null;
+        let currentMessages = [];
+        let uploadedFiles = [];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            if (apiKey) {
+                document.getElementById('api-key').value = apiKey;
+            }
+            loadConversations();
+        });
+
+        function saveApiKey() {
+            apiKey = document.getElementById('api-key').value.trim();
+            localStorage.setItem('syntaxa_api_key', apiKey);
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+        }
+
+        function newChat() {
+            currentConversationId = Date.now();
+            currentMessages = [];
+            uploadedFiles = [];
+            document.getElementById('messages').innerHTML = `
+                <div class="welcome">
+                    <h1>✨ Nouvelle Conversation</h1>
+                    <p>Comment puis-je vous aider aujourd'hui ?</p>
+                </div>
+            `;
+            document.getElementById('file-preview').innerHTML = '';
+            document.getElementById('message-input').value = '';
+        }
+
+        function setSuggestion(text) {
+            document.getElementById('message-input').value = text;
+            document.getElementById('message-input').focus();
+        }
+
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        async function handleImageUpload(event) {
+            const files = Array.from(event.target.files);
+            for (const file of files) {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        uploadedFiles.push({
+                            type: 'image',
+                            name: file.name,
+                            data: e.target.result
+                        });
+                        updateFilePreview();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+            event.target.value = '';
+        }
+
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    uploadedFiles.push({
+                        type: 'file',
+                        name: file.name,
+                        data: e.target.result
+                    });
+                    updateFilePreview();
+                };
+                reader.readAsText(file);
+            }
+            event.target.value = '';
+        }
+
+        function updateFilePreview() {
+            const preview = document.getElementById('file-preview');
+            preview.innerHTML = uploadedFiles.map((file, index) => `
+                <div class="file-item">
+                    <span>${file.type === 'image' ? '📷' : '📄'} ${file.name}</span>
+                    <button class="file-remove" onclick="removeFile(${index})">×</button>
+                    ${file.type === 'image' ? `<br><img src="${file.data}" class="image-preview">` : ''}
+                </div>
+            `).join('');
+        }
+
+        function removeFile(index) {
+            uploadedFiles.splice(index, 1);
+            updateFilePreview();
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('message-input');
+            const text = input.value.trim();
+
+            if (!text && uploadedFiles.length === 0) return;
+
+            if (!apiKey || !apiKey.startsWith('sk-')) {
+                showError('🔑 Veuillez configurer votre clé API OpenAI dans la barre latérale.');
+                return;
+            }
+
+            // Remove welcome
+            const welcome = document.querySelector('.welcome');
+            if (welcome) welcome.remove();
+
+            // Add user message
+            addMessage('user', text, uploadedFiles);
+
+            // Prepare message content
+            const messageContent = [];
+            
+            if (text) {
+                messageContent.push({ type: 'text', text: text });
+            }
+
+            // Add images
+            for (const file of uploadedFiles) {
+                if (file.type === 'image') {
+                    messageContent.push({
+                        type: 'image_url',
+                        image_url: {
+                            url: file.data
+                        }
+                    });
+                } else {
+                    // Add file content as text
+                    messageContent.push({
+                        type: 'text',
+                        text: `\n\n[Contenu du fichier ${file.name}]:\n${file.data}`
+                    });
+                }
+            }
+
+            currentMessages.push({
+                role: 'user',
+                content: messageContent
+            });
+
+            // Clear input
+            input.value = '';
+            input.style.height = 'auto';
+            uploadedFiles = [];
+            updateFilePreview();
+
+            // Show thinking
+            const thinkingId = addThinking();
+
+            // Disable send button
+            document.getElementById('send-btn').disabled = true;
+
+            try {
+                const model = document.getElementById('model-select').value;
+                
+                const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: model,
+                        messages: [
+                            {
+                                role: 'system',
+                                content: 'Tu es Syntaxa AI Pro, un assistant IA avancé et polyvalent. Tu es expert en programmation, analyse de données, création de contenu, et bien plus. Tu fournis des réponses détaillées, précises et utiles. Tu peux analyser des images, lire des documents, et aider sur tous types de sujets.'
+                            },
+                            ...currentMessages
+                        ],
+                        max_tokens: 4000,
+                        temperature: 0.7
+                    })
+                });
+
+                removeThinking(thinkingId);
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    handleApiError(response.status, errorData);
+                    return;
+                }
+
+                const data = await response.json();
+                const aiResponse = data.choices[0].message.content;
+
+                currentMessages.push({
+                    role: 'assistant',
+                    content: aiResponse
+                });
+
+                addMessage('ai', aiResponse);
+                
+                // Save conversation
+                saveConversation();
+
+            } catch (error) {
+                removeThinking(thinkingId);
+                showError(`❌ Erreur: ${error.message}`);
+            } finally {
+                document.getElementById('send-btn').disabled = false;
+            }
+        }
+
+        function handleApiError(status, errorData) {
+            let errorMessage = '';
+            
+            if (status === 401) {
+                errorMessage = '🔐 Clé API invalide. Vérifiez votre clé OpenAI.';
+            } else if (status === 429) {
+                errorMessage = '⏰ Limite de débit dépassée ou quota épuisé.\n\nVérifiez vos crédits sur platform.openai.com/usage';
+            } else if (status === 400) {
+                errorMessage = `⚠️ Requête invalide: ${errorData.error?.message || 'Erreur inconnue'}`;
+            } else if (status === 500 || status === 503) {
+                errorMessage = '🔧 Erreur serveur OpenAI. Réessayez dans quelques instants.';
+            } else {
+                errorMessage = `❌ Erreur ${status}: ${errorData.error?.message || 'Erreur inconnue'}`;
+            }
+            
+            showError(errorMessage);
+        }
+
+        function addMessage(sender, text, files = []) {
+            const container = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+
+            const avatarDiv = document.createElement('div');
+            avatarDiv.className = `message-avatar ${sender}-avatar`;
+            avatarDiv.textContent = sender === 'user' ? '👤' : '🤖';
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+
+            // Add files preview for user messages
+            if (sender === 'user' && files.length > 0) {
+                const filesPreview = files.map(file => {
+                    if (file.type === 'image') {
+                        return `<img src="${file.data}" style="max-width: 300px; border-radius: 8px; margin-bottom: 0.5rem;">`;
+                    }
+                    return `<div style="padding: 0.5rem; background: var(--bg-tertiary); border-radius: 6px; margin-bottom: 0.5rem; font-size: 0.875rem;">📄 ${file.name}</div>`;
+                }).join('');
+                contentDiv.innerHTML += filesPreview;
+            }
+
+            const textDiv = document.createElement('div');
+            textDiv.className = 'message-text';
+            textDiv.innerHTML = formatMessage(text);
+
+            contentDiv.appendChild(textDiv);
+
+            if (sender === 'ai') {
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'message-actions';
+                actionsDiv.innerHTML = `
+                    <button class="action-btn" onclick="copyMessage(this)">📋 Copier</button>
+                    <button class="action-btn" onclick="regenerate()">🔄 Régénérer</button>
+                `;
+                contentDiv.appendChild(actionsDiv);
+            }
+
+            messageDiv.appendChild(avatarDiv);
+            messageDiv.appendChild(contentDiv);
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function formatMessage(text) {
+            if (!text) return '';
+            
+            // Code blocks
+            text = text.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
+                return `
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-language">${lang || 'code'}</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copier</button>
+                        </div>
+                        <pre><code>${escapeHtml(code.trim())}</code></pre>
+                    </div>
+                `;
+            });
+
+            // Inline code
+            text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+            // Bold
+            text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+
+            // Italic
+            text = text.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+
+            // Line breaks
+            text = text.replace(/\n/g, '<br>');
+
+            return text;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function copyCode(btn) {
+            const code = btn.closest('.code-block').querySelector('code').textContent;
+            navigator.clipboard.writeText(code);
+            btn.textContent = 'Copié ✓';
+            setTimeout(() => btn.textContent = 'Copier', 2000);
+        }
+
+        function copyMessage(btn) {
+            const text = btn.closest('.message-content').querySelector('.message-text').textContent;
+            navigator.clipboard.writeText(text);
+            btn.textContent = '✓ Copié';
+            setTimeout(() => btn.textContent = '📋 Copier', 2000);
+        }
+
+        function regenerate() {
+            if (currentMessages.length > 0) {
+                currentMessages.pop(); // Remove last AI message
+                const lastUserMessage = currentMessages[currentMessages.length - 1];
+                sendMessage();
+            }
+        }
+
+        function addThinking() {
+            const container = document.getElementById('messages');
+            const thinkingDiv = document.createElement('div');
+            const id = 'thinking-' + Date.now();
+            thinkingDiv.id = id;
+            thinkingDiv.className = 'message';
+            thinkingDiv.innerHTML = `
+                <div class="message-avatar ai-avatar">🤖</div>
+                <div class="message-content">
+                    <div class="thinking">
+                        <div class="thinking-dot"></div>
+                        <div class="thinking-dot"></div>
+                        <div class="thinking-dot"></div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(thinkingDiv);
+            container.scrollTop = container.scrollHeight;
+            return id;
+        }
+
+        function removeThinking(id) {
+            const element = document.getElementById(id);
+            if (element) element.remove();
+        }
+
+        function showError(message) {
+            const container = document.getElementById('messages');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = message;
+            container.appendChild(errorDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function saveConversation() {
+            if (!currentConversationId) return;
+
+            const conversation = {
+                id: currentConversationId,
+                title: currentMessages[0]?.content[0]?.text?.substring(0, 50) || 'Nouvelle conversation',
+                messages: currentMessages,
+                timestamp: Date.now()
+            };
+
+            const index = conversations.findIndex(c => c.id === currentConversationId);
+            if (index >= 0) {
+                conversations[index] = conversation;
+            } else {
+                conversations.unshift(conversation);
+            }
+
+            localStorage.setItem('syntaxa_conversations', JSON.stringify(conversations));
+            loadConversations();
+        }
+
+        function loadConversations() {
+            const list = document.getElementById('conversations-list');
+            list.innerHTML = conversations.map(conv => `
+                <div class="conversation-item ${conv.id === currentConversationId ? 'active' : ''}" 
+                     onclick="loadConversation(${conv.id})">
+                    💬 ${conv.title}
+                </div>
+            `).join('');
+        }
+
+        function loadConversation(id) {
+            const conv = conversations.find(c => c.id === id);
+            if (!conv) return;
+
+            currentConversationId = id;
+            currentMessages = conv.messages;
+            
+            document.getElementById('messages').innerHTML = '';
+            for (const msg of currentMessages) {
+                const text = Array.isArray(msg.content) 
+                    ? msg.content.find(c => c.type === 'text')?.text || ''
+                    : msg.content;
+                addMessage(msg.role === 'user' ? 'user' : 'ai', text);
+            }
+
+            loadConversations();
+        }
+    </script>
+</body>
+</html>
