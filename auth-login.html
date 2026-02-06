@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Syntaxa AI - Connexion</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --accent-primary: #3b82f6;
+            --accent-hover: #2563eb;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --border-color: #334155;
+            --success: #10b981;
+            --error: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 450px;
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-color);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo h1 {
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--accent-primary), var(--success));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .logo p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: var(--bg-tertiary);
+            padding: 0.5rem;
+            border-radius: 12px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 0.75rem;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        .form-container {
+            display: none;
+        }
+
+        .form-container.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--accent-primary), var(--success));
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-color);
+        }
+
+        .social-login {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-btn {
+            flex: 1;
+            padding: 0.75rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .social-btn:hover {
+            background: var(--bg-primary);
+            border-color: var(--accent-primary);
+            color: var(--text-primary);
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--error);
+            color: var(--error);
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .success-message {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--success);
+            color: var(--success);
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        .links {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .links a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            font-size: 0.875rem;
+        }
+
+        .links a:hover {
+            text-decoration: underline;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .strength-meter {
+            margin-top: 0.5rem;
+            height: 4px;
+            background: var(--bg-tertiary);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s;
+        }
+
+        .strength-weak { background: var(--error); width: 33%; }
+        .strength-medium { background: #f59e0b; width: 66%; }
+        .strength-strong { background: var(--success); width: 100%; }
+
+        .strength-text {
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="logo">
+            <h1>🤖 Syntaxa AI</h1>
+            <p>Votre assistant IA personnel</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('login')">Connexion</button>
+            <button class="tab" onclick="switchTab('register')">Inscription</button>
+        </div>
+
+        <!-- Login Form -->
+        <div class="form-container active" id="login-form">
+            <div id="login-message"></div>
+            
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input 
+                        type="email" 
+                        id="login-email" 
+                        class="form-input" 
+                        placeholder="votre@email.com"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="login-password">Mot de passe</label>
+                    <div class="password-container">
+                        <input 
+                            type="password" 
+                            id="login-password" 
+                            class="form-input" 
+                            placeholder="••••••••"
+                            required
+                        >
+                        <button type="button" class="toggle-password" onclick="togglePassword('login-password')">
+                            👁️
+                        </button>
+                    </div>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="remember-me">
+                    <label for="remember-me">Se souvenir de moi</label>
+                </div>
+
+                <button type="submit" class="submit-btn">Se connecter</button>
+            </form>
+
+            <div class="divider">ou continuer avec</div>
+
+            <div class="social-login">
+                <button class="social-btn" onclick="socialLogin('google')">
+                    🔍 Google
+                </button>
+                <button class="social-btn" onclick="socialLogin('github')">
+                    💻 GitHub
+                </button>
+            </div>
+
+            <div class="links">
+                <a href="#" onclick="showForgotPassword()">Mot de passe oublié ?</a>
+            </div>
+        </div>
+
+        <!-- Register Form -->
+        <div class="form-container" id="register-form">
+            <div id="register-message"></div>
+            
+            <form onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label for="register-name">Nom complet</label>
+                    <input 
+                        type="text" 
+                        id="register-name" 
+                        class="form-input" 
+                        placeholder="Jean Dupont"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="register-email">Email</label>
+                    <input 
+                        type="email" 
+                        id="register-email" 
+                        class="form-input" 
+                        placeholder="votre@email.com"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="register-password">Mot de passe</label>
+                    <div class="password-container">
+                        <input 
+                            type="password" 
+                            id="register-password" 
+                            class="form-input" 
+                            placeholder="••••••••"
+                            required
+                            oninput="checkPasswordStrength(this.value)"
+                        >
+                        <button type="button" class="toggle-password" onclick="togglePassword('register-password')">
+                            👁️
+                        </button>
+                    </div>
+                    <div class="strength-meter">
+                        <div class="strength-bar" id="strength-bar"></div>
+                    </div>
+                    <div class="strength-text" id="strength-text"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="register-confirm-password">Confirmer le mot de passe</label>
+                    <input 
+                        type="password" 
+                        id="register-confirm-password" 
+                        class="form-input" 
+                        placeholder="••••••••"
+                        required
+                    >
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="accept-terms" required>
+                    <label for="accept-terms">J'accepte les <a href="#" style="color: var(--accent-primary);">conditions d'utilisation</a></label>
+                </div>
+
+                <button type="submit" class="submit-btn">Créer mon compte</button>
+            </form>
+
+            <div class="divider">ou s'inscrire avec</div>
+
+            <div class="social-login">
+                <button class="social-btn" onclick="socialLogin('google')">
+                    🔍 Google
+                </button>
+                <button class="social-btn" onclick="socialLogin('github')">
+                    💻 GitHub
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Switch between tabs
+        function switchTab(tab) {
+            // Update tabs
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update forms
+            document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
+            document.getElementById(tab + '-form').classList.add('active');
+        }
+
+        // Toggle password visibility
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+
+        // Password strength checker
+        function checkPasswordStrength(password) {
+            const strengthBar = document.getElementById('strength-bar');
+            const strengthText = document.getElementById('strength-text');
+
+            let strength = 0;
+            if (password.length >= 8) strength++;
+            if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
+            if (password.match(/[0-9]/)) strength++;
+            if (password.match(/[^a-zA-Z0-9]/)) strength++;
+
+            strengthBar.className = 'strength-bar';
+            
+            if (strength <= 1) {
+                strengthBar.classList.add('strength-weak');
+                strengthText.textContent = '❌ Mot de passe faible';
+                strengthText.style.color = 'var(--error)';
+            } else if (strength <= 2) {
+                strengthBar.classList.add('strength-medium');
+                strengthText.textContent = '⚠️ Mot de passe moyen';
+                strengthText.style.color = '#f59e0b';
+            } else {
+                strengthBar.classList.add('strength-strong');
+                strengthText.textContent = '✅ Mot de passe fort';
+                strengthText.style.color = 'var(--success)';
+            }
+        }
+
+        // Handle login
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const rememberMe = document.getElementById('remember-me').checked;
+
+            // Get users from localStorage
+            const users = JSON.parse(localStorage.getItem('syntaxa_users') || '[]');
+            
+            // Find user
+            const user = users.find(u => u.email === email);
+
+            if (!user) {
+                showMessage('login-message', 'Aucun compte trouvé avec cet email.', 'error');
+                return;
+            }
+
+            if (user.password !== password) {
+                showMessage('login-message', 'Mot de passe incorrect.', 'error');
+                return;
+            }
+
+            // Save session
+            const session = {
+                email: user.email,
+                name: user.name,
+                loginTime: Date.now(),
+                rememberMe: rememberMe
+            };
+
+            if (rememberMe) {
+                localStorage.setItem('syntaxa_session', JSON.stringify(session));
+            } else {
+                sessionStorage.setItem('syntaxa_session', JSON.stringify(session));
+            }
+
+            showMessage('login-message', '✅ Connexion réussie ! Redirection...', 'success');
+            
+            setTimeout(() => {
+                window.location.href = 'syntaxa-ai-pro.html';
+            }, 1000);
+        }
+
+        // Handle register
+        function handleRegister(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm-password').value;
+
+            // Validation
+            if (password !== confirmPassword) {
+                showMessage('register-message', 'Les mots de passe ne correspondent pas.', 'error');
+                return;
+            }
+
+            if (password.length < 8) {
+                showMessage('register-message', 'Le mot de passe doit contenir au moins 8 caractères.', 'error');
+                return;
+            }
+
+            // Get existing users
+            const users = JSON.parse(localStorage.getItem('syntaxa_users') || '[]');
+
+            // Check if email already exists
+            if (users.find(u => u.email === email)) {
+                showMessage('register-message', 'Un compte existe déjà avec cet email.', 'error');
+                return;
+            }
+
+            // Create new user
+            const newUser = {
+                id: Date.now(),
+                name: name,
+                email: email,
+                password: password, // Note: En production, utilisez un hash !
+                createdAt: new Date().toISOString(),
+                apiKey: '',
+                preferences: {}
+            };
+
+            users.push(newUser);
+            localStorage.setItem('syntaxa_users', JSON.stringify(users));
+
+            showMessage('register-message', '✅ Compte créé avec succès ! Vous pouvez maintenant vous connecter.', 'success');
+
+            // Switch to login tab after 2 seconds
+            setTimeout(() => {
+                switchTab('login');
+                document.getElementById('login-email').value = email;
+            }, 2000);
+        }
+
+        // Social login (demo)
+        function socialLogin(provider) {
+            alert(`Connexion avec ${provider} sera disponible prochainement !`);
+        }
+
+        // Forgot password
+        function showForgotPassword() {
+            const email = prompt('Entrez votre adresse email pour réinitialiser votre mot de passe :');
+            if (email) {
+                alert('Un email de réinitialisation a été envoyé à ' + email);
+            }
+        }
+
+        // Show message
+        function showMessage(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.className = type === 'error' ? 'error-message' : 'success-message';
+            element.textContent = message;
+            element.style.display = 'block';
+
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 5000);
+        }
+
+        // Check if already logged in
+        window.addEventListener('load', () => {
+            const session = localStorage.getItem('syntaxa_session') || sessionStorage.getItem('syntaxa_session');
+            if (session) {
+                const data = JSON.parse(session);
+                // Check if session is still valid (24h for "remember me", current session otherwise)
+                const maxAge = data.rememberMe ? 24 * 60 * 60 * 1000 : Infinity;
+                if (Date.now() - data.loginTime < maxAge) {
+                    window.location.href = 'syntaxa-ai-pro.html';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
